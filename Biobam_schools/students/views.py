@@ -57,3 +57,14 @@ class StudentSignup(APIView):
                         return Response({'success':'Registered sucessfully'})
             else:
                 return Response({'error':'Password do not match'})
+
+class GetStudents(APIView):
+    def get(self,request, student_class):
+        print(student_class)
+        student_class = StudentClass.objects.get(name=student_class)
+        students = Student.objects.filter(student_class=student_class)
+        data = {"students":students}
+        serializer = StudentSerializer(students, many=True)
+        print(serializer)
+        message ='this is the dashboard'
+        return Response(serializer)

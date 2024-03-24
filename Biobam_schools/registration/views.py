@@ -74,11 +74,13 @@ class LoginView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             refresh = RefreshToken.for_user(user)
+            print(user.is_superuser)
+            print(user.is_staff)
 
             data = {
                 'refresh':str(refresh),
                 'access':str(refresh.access_token),
-                'is_admin':user.is_superuser,
+                'is_superuser':user.is_superuser,
                 'is_staff':user.is_staff,
                 'teacher':teacher_serializer,
                 'student':student_serializer,

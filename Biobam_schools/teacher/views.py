@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework import permissions
 
 from .models import *
+from .serializers import *
 
 
 User = get_user_model()
@@ -51,3 +53,24 @@ class TeacherSignup(APIView):
                         return Response({'success':'Registered sucessfully'})
             else:
                 return Response({'error':'Password do not match'})
+
+class GetTeachers(APIView):
+    def get(self,request):
+        teachers = Teacher.objects.all()
+        serializer = TeacherSerializer(teachers, many=True)
+        return Response(serializer.data)
+
+class TeacherProfile(APIView):
+    def get(self, request, id):
+        teacher =  Teacher.objects.get(id=id)
+        serializer = TeacherSerializer(teacher)
+        return Response(serializer.data)
+
+
+class GetDesignations(ListAPIView):
+    queryset = Designation.objects.all()
+    serializer_class = DesignationSerializer
+
+class GetSubjects(ListAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
