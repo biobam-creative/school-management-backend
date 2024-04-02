@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+# from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
@@ -16,7 +17,6 @@ class TeacherSignup(APIView):
         files = request.FILES
         user = request.user
 
-        print(data)
 
         email = data['email']
         password = data['password']
@@ -26,19 +26,25 @@ class TeacherSignup(APIView):
         photo = data['photo']
         date_of_birth = data['dateOfBirth']
         designation = data['designation']
-        expertise = data['expertise']
+        expertise = data['expertise'].split(',')
         mobile = data['phone']
         joining_date = data['joiningDate']
 
-        designation = Designation.objects.get(title=designation)
+        try:
+            designation = Designation.objects.get(title=designation)
+        except Designation.DoesNotExist:
+            return Response({'error':'not found' }, status=status.HTTP_404_NOT_FOUND)
 
         expertises = []
         for i in expertise:
-            expertise = Subject.objects.get(name=i)
-            expertises.append(expertise)
+            try:
+                expertise = Subject.objects.get(name=i)
+                expertises.append(expertise)
+            except Subject.DoesNotExist:
+                return Response({'error':'not found' }, status=status.HTTP_404_NOT_FOUND)
 
         if not user.is_superuser:
-            return Response({'error': 'Unauthorized'})
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             if password == password2:
                 if User.objects.filter(email=email).exists():
